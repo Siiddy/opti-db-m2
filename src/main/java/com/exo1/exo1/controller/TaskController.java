@@ -1,9 +1,13 @@
 package com.exo1.exo1.controller;
 
 import com.exo1.exo1.dto.TaskDto;
+import com.exo1.exo1.entity.Task;
 import com.exo1.exo1.service.TaskService;
+import com.exo1.exo1.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,10 +19,16 @@ public class TaskController {
     @Autowired
     private TaskService taskService;
 
+    @Autowired
+    private TaskRepository taskRepository;
+
     @GetMapping
-    public ResponseEntity<List<TaskDto>> findAll()
-    {
-        return ResponseEntity.ok(taskService.findAll());
+    public ResponseEntity<Page<Task>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(taskRepository.findAll(pageable));
     }
 
     @GetMapping("/{id}")
@@ -42,5 +52,4 @@ public class TaskController {
         taskService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
 }
